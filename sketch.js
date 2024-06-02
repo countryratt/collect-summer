@@ -1,17 +1,18 @@
 let images = []; // 이미지 배열
 let imagesorg = []; // 이미지 원본 배열
 let currentIndex = 0; // 현재 이미지 인덱스
-let dragging = false; // 드래그 상태 변수 초기화
+let clicking = false; let dragging = false; 
 let eraserSize = 100; // 지우개 크기
-let mask; // 마스크 변수
+let mask; // 지워질때 다음 이미지가 보이도록 마스크
 let revealThreshold = 0.3; // 30% 한계값
+
 let textArray = ["Collect Summer"]; // 텍스트 배열
-let textSubArray = ["If someone asks me what my favorite season is,\n I answer without hesitation: summer.\n Summer is vague and sparkling without us knowing why.\n Please clear the screen \n and enjoy the summer I have collected!"];
+let textSubArray = ["If someone asks me what my favorite season is,\nI answer summer without hesitation.\nSummer leaves its traces without us even realizing it, faint and sparkling.\nMake a mark on the screen and empty it\nPlease enjoy the summer I have collected!"];
 let font; 
-let textPositions = []; // 텍스트의 y 좌표
-let textSpeeds = []; // 텍스트의 속도
+let textPositions = []; // 텍스트 y 좌표
+let textSpeeds = []; // 텍스트 속도
 let animationCompleted = false; // 애니메이션 완료 여부
-let textEventExecuted = false; // 텍스트 이벤트 실행 여부
+let textEventExecuted = false; // 텍스트이벤트 실행 여부
 
 function preload() {
   for (let i = 0; i <= 10; i++) {
@@ -21,11 +22,12 @@ function preload() {
       console.error(`Failed to load image: summer/summer${i}.png`);
     });
   }
-  font = loadFont('TiquiTaca-Regular.ttf'); // 사용하고자 하는 폰트 경로
+  font = loadFont('TiquiTaca-Regular.ttf');
 }
 
 function setup() {
-  let container = select('#canvas-container');
+  noCursor();
+  let container = select('#canvas-container'); //화면 사이즈 조정
   let canvas = createCanvas(windowWidth, windowHeight);
   canvas.parent(container);
   
@@ -44,12 +46,13 @@ function setup() {
   }
   textPositions.push(-100 - (textArray.length * 150)); // 추가 텍스트의 초기 위치 설정
   textSpeeds.push(3); // 추가 텍스트의 속도 설정
+
 }
 
 function draw() {
-  clear(); // 배경을 지우지 않음
+  clear(); 
+  
   let nextIndex = (currentIndex + 1) % images.length;
-
   // 이미지의 비율을 유지하면서 화면의 가로 넓이에 맞추어 크기를 조정
   let img = images[currentIndex];
   let aspectRatio = img.width / img.height;
@@ -61,7 +64,7 @@ function draw() {
     imgWidth = imgHeight * aspectRatio;
   }
 
-  // 마스크 적용한 현재 이미지와 다음 이미지를 표시
+  // 마스크 적용한 현재 이미지와 지워질때 다음 이미지 표시
   image(images[nextIndex], 0, 0, imgWidth, imgHeight);
   images[currentIndex].mask(mask);
   image(images[currentIndex], 0, 0, imgWidth, imgHeight);
@@ -77,25 +80,25 @@ function draw() {
   let revealedPercentage = revealedPixels / totalPixels;
   mask.updatePixels();
 
-  // 30% 이상 드러난 경우 다음 이미지로 이동
+  // 30% 이상 드러난 경우 다음 이미지로 완전히 이동
   if (revealedPercentage >= revealThreshold) {
     currentIndex = (currentIndex + 1) % images.length;
     mask.clear(); // 마스크 초기화
-    mask.background(255); // 마스크를 완전히 초기화
+    mask.background(255); 
     for (let i = 0; i < images.length; i++) {
       images[i].copy(imagesorg[i], 0, 0, imagesorg[i].width, imagesorg[i].height, 0, 0, imagesorg[i].width, imagesorg[i].height);
     }
   }
 
-  // 텍스트 애니메이션 (초기 한 번만 실행)
+  // 텍스트 이벤트~~ (한 번만 실행)
   if (!textEventExecuted) {
     fill(255);
     textSize(100);
     textAlign(CENTER, CENTER);
 
     for (let i = 0; i < textArray.length; i++) {
-      text(textArray[i], width / 2, textPositions[i]); // 각 텍스트 위치 설정
-      textPositions[i] += textSpeeds[i]; // 각 텍스트의 Y 좌표 증가
+      text(textArray[i], width / 2, textPositions[i]); //텍스트 위치
+      textPositions[i] += textSpeeds[i]; // 텍스트 Y 좌표 증가(떨어지게)
     }
 
     textSize(20); // 추가 텍스트 크기 설정
@@ -108,14 +111,25 @@ function draw() {
       textEventExecuted = true; // 텍스트 이벤트 실행 완료
     }
   }
+
+  // 반짝이는 커서 효과
+  if (clicking || dragging) {
+    for (let i = 0; i < 3; i++) {
+      noStroke();
+      fill(255, 252, 224, random(50, 150)); // 랜덤한 투명도
+      ellipse(mouseX + random(-30, 30), mouseY + random(-20, 20), random(5, 10));
+    }
+  }
 }
 
 function mousePressed() {
+  clicking = true;
   dragging = true; // 마우스 눌렀을 때 드래그를 참으로
 }
 
 function mouseReleased() {
-  dragging = false; // 마우스를 뗐을 때 드래그 거짓
+  clicking = false;
+  dragging = false; // 마우스를 뗐을 때
 }
 
 function mouseDragged() {
@@ -124,8 +138,11 @@ function mouseDragged() {
     mask.ellipse(mouseX, mouseY, eraserSize, eraserSize);
     mask.noErase();
   }
+
+  
 }
 
+//화면 사이즈가 열리는 창 사이즈에 맞게 조정되도록!! (html에 container 추가하는 방법)
 function windowResized() {
   let container = select('#canvas-container');
   resizeCanvas(windowWidth, windowHeight);
