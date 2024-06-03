@@ -7,8 +7,9 @@ let mask; // 지워질때 다음 이미지가 보이도록 마스크
 let revealThreshold = 0.3; // 30% 한계값
 
 let textArray = ["Collect Summer"]; // 텍스트 배열
-let textSubArray = ["If someone asks me what my favorite season is,\nI answer summer without hesitation.\nSummer leaves its traces without us even realizing it, faint and sparkling.\nMake a mark on the screen and empty it\nPlease enjoy the summer I have collected!"];
+let textSubArray = ["When someone asks me what my favorite season is,\n I answer without hesitation that it is summer.\n Summer leaves its traces without us even realizing it,\n and it glows and shines.Drag and clear the screen \n to enjoy the summers I have collected!"];
 let font; 
+let font2;
 let textPositions = []; // 텍스트 y 좌표
 let textSpeeds = []; // 텍스트 속도
 let animationCompleted = false; // 애니메이션 완료 여부
@@ -16,13 +17,10 @@ let textEventExecuted = false; // 텍스트이벤트 실행 여부
 
 function preload() {
   for (let i = 0; i <= 10; i++) {
-    images[i] = loadImage(`summer/summer${i}.png`, img => {
-      console.log(`Loaded image: summer/summer${i}.png`);
-    }, err => {
-      console.error(`Failed to load image: summer/summer${i}.png`);
-    });
-  }
+    images[i] = loadImage(`summer/summer${i}.png`);}
+  
   font = loadFont('TiquiTaca-Regular.ttf');
+  font2 = loadFont('Diphylleia-Regular.ttf');
 }
 
 function setup() {
@@ -41,11 +39,11 @@ function setup() {
   
   textFont(font); 
   for (let i = 0; i < textArray.length; i++) {
-    textPositions.push(-100 - (i * 130)); // 각 텍스트를 화면 위로부터 떨어지도록 초기값 설정
-    textSpeeds.push(3); // 모든 텍스트의 속도 동일하게 설정
+    textPositions.push(-100 - (i * 100)); // 각 텍스트를 화면 위로부터 떨어지도록 초기값 설정
+    textSpeeds.push(1); // 모든 텍스트의 속도 동일하게 설정
   }
-  textPositions.push(-100 - (textArray.length * 150)); // 추가 텍스트의 초기 위치 설정
-  textSpeeds.push(3); // 추가 텍스트의 속도 설정
+  textPositions.push(-100 - (textArray.length * 170)); // 추가 텍스트의 초기 위치 설정
+  textSpeeds.push(1); // 추가 텍스트의 속도 설정
 
 }
 
@@ -100,10 +98,12 @@ function draw() {
       text(textArray[i], width / 2, textPositions[i]); //텍스트 위치
       textPositions[i] += textSpeeds[i]; // 텍스트 Y 좌표 증가(떨어지게)
     }
-
-    textSize(20); // 추가 텍스트 크기 설정
+push();
+    textSize(22); // 추가 텍스트 크기 설정
+    textFont(font2);
     text(textSubArray[0], width / 2, textPositions[textArray.length]); // 추가 텍스트 위치 설정
     textPositions[textArray.length] += textSpeeds[0]; // 추가 텍스트의 Y 좌표 증가
+pop();
 
     // 모든 텍스트가 화면을 벗어났는지 확인
     if (textPositions.every(pos => pos > height + 100)) {
@@ -114,10 +114,11 @@ function draw() {
 
   // 반짝이는 커서 효과
   if (clicking || dragging) {
-    for (let i = 0; i < 3; i++) {
+    for (let i = 0; i < 2 ; i++) {
       noStroke();
       fill(255, 252, 224, random(50, 150)); // 랜덤한 투명도
-      ellipse(mouseX + random(-30, 30), mouseY + random(-20, 20), random(5, 10));
+      ellipse(mouseX + random(-50, 50), mouseY + random(-50, 50), random(15, 13),random(8, 10));
+      
     }
   }
 }
